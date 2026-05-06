@@ -1,0 +1,26 @@
+# Claude Code
+.claude/settings.local.json
+
+# Node
+node_modules/
+dist/
+*.js.map
+
+# Rails
+/api/log/*.log
+/api/tmp/
+/api/storage/
+/api/public/system/
+/api/.env
+/api/.env.*
+
+# Next.js
+/web/.next/
+/web/out/
+/web/.env
+/web/.env.*
+
+# General
+.DS_Store
+*.env
+*.env.local
