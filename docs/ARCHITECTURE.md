@@ -8,7 +8,7 @@
 
 A web app that helps users design a xeriscaped yard. It should feel like a smart design assistant — not just a drag-and-drop tool, but something that knows what it's doing.
 
-**Portfolio goals:** Public GitHub repo showcasing AI integration (MCP, Claude tool use) and full-stack engineering (Rails API + Next.js frontend).
+**Portfolio goals:** Public GitHub repo showcasing AI integration (Claude API tool use, MCP) and full-stack engineering (Rails API + Next.js frontend).
 
 ---
 
@@ -30,12 +30,14 @@ We build in layers, each one usable before the next begins.
 
 | Phase | What | Why |
 |---|---|---|
-| 1 | MCP server (TypeScript) | Domain knowledge layer — zones, plants, design principles as Claude tools |
-| 2 | Rails API (stateless, no DB) | Orchestration: takes user input, calls Claude with MCP tools, returns recommendations |
+| 1 | Rails API (stateless, no DB) | Get Claude talking first — zip + context in, plant recommendations out |
+| 2 | MCP server (TypeScript) | Add structured domain tools on top of a working API |
 | 3 | Next.js frontend | UI on top of a working API |
 | 4 | Database + persistence | PostgreSQL, designs/plants saved — added once the core loop is proven |
 
 **No database until Phase 4.** Build the useful thing first.
+
+**Why Rails before MCP:** The core value loop is "user provides context → Claude recommends plants." Getting that working with Claude's native knowledge first lets us validate the product before adding infrastructure. The MCP layer is additive, not foundational.
 
 ---
 
@@ -43,14 +45,14 @@ We build in layers, each one usable before the next begins.
 
 | Layer | Choice | Notes |
 |---|---|---|
-| MCP server | TypeScript (`@modelcontextprotocol/sdk`) | First thing built |
 | Backend | Rails API mode | Stateless to start; DB added in Phase 4 |
+| MCP server | TypeScript (`@modelcontextprotocol/sdk`) | Domain knowledge layer — added in Phase 2 |
 | Frontend | Next.js (TypeScript/React) | Vercel free tier |
 | Canvas | react-konva or Fabric.js | 2D top-down yard designer |
 | Database | PostgreSQL | Render or Railway — Phase 4 only |
-| AI | Claude API via Rails | Tool use against the MCP server |
+| AI | Claude API via Rails | Tool use, optionally backed by MCP server |
 | Zone lookup | phzmapi.org | Free REST API: zip → USDA zone |
-| Plant data | Claude's knowledge via MCP tools | No external plant API or seeded DB needed initially |
+| Plant data | Claude's knowledge (Phase 1), MCP tools (Phase 2) | No external plant API needed |
 | File storage | Active Storage + S3/Supabase | Inspiration image uploads — post-MVP |
 | Auth | Not in MVP | Nullable `user_id` on `Design` keeps the door open |
 
@@ -60,9 +62,11 @@ We build in layers, each one usable before the next begins.
 
 ---
 
-## MCP Server — Tools
+## MCP Server — Tools (Phase 2)
 
-The MCP server is the AI's domain knowledge layer. Claude calls these tools instead of relying on its training data for facts.
+The MCP server is the AI's structured domain knowledge layer. Claude calls these tools to ground recommendations in defined data rather than relying solely on training knowledge. This pattern makes most sense when you own the data — e.g., a plant retailer constraining Claude to their actual inventory.
+
+For this project, MCP is included deliberately to demonstrate the pattern, not because it's strictly required at MVP scale.
 
 | Tool | Input | Output |
 |---|---|---|
@@ -100,7 +104,6 @@ The MCP server is the AI's domain knowledge layer. Claude calls these tools inst
 - `DesignElement` = existing physical features in the yard (user-entered ground truth)
 - `DesignPlant` = AI-recommended / user-placed plants (the design output)
 - AI populates `DesignPlant` records with positions; it never mutates `DesignElement` records
-- No external plant API — MCP server + Claude knowledge is sufficient to start
 
 ### Models
 
@@ -132,6 +135,6 @@ The MCP server is the AI's domain knowledge layer. Claude calls these tools inst
 
 ## Status
 
-> **Last completed:** Git repo initialized. MCP server scaffolded — `package.json`, `tsconfig.json`, `src/tools/` and `src/data/` directories in place. Architecture doc written and agreed on. Old planning doc at `../xeriscape-architecture.md` marked superseded.
+> **Last completed:** Git repo initialized. `mcp-server/` scaffolded with `package.json` and `tsconfig.json` (parked for Phase 2). Architecture revised — Rails API is now Phase 1. `docs/` folder created.
 >
-> **Next step:** `npm install` in `mcp-server/`, then write the first tool (`lookup_zone`).
+> **Next step:** Scaffold the Rails API. Set up API mode, versioned routes, and a basic `/api/v1/recommendations` endpoint that takes zip + context and returns Claude's plant suggestions.
