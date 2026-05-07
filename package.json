@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "server": "cd api && bin/rails s"
+  }
+}
