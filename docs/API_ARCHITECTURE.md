@@ -4,18 +4,41 @@
 
 `POST /api/v1/recommendations`
 
+Multi-turn and stateless — the client sends the full message history each turn. Claude guides the user through providing context, confirms understanding, then produces a design. Subsequent turns allow tweaks ("more purple", "fewer shrubs").
+
 **Input:**
-- `zip_code` — used for zone lookup and climate context
+- `messages` — full conversation history (role + content pairs)
+- `zip_code` — provided on first turn, used for zone lookup
 - `width_ft`, `length_ft` — yard dimensions
 - `sun_exposure` — full sun / partial shade / full shade
 - `style` — naturalistic, formal, desert modern, etc.
 - `existing_elements` (optional) — array of trees, beds, paths, hardscaping
 
 **Output:**
-- Zone info (zone number, temp range, climate summary)
-- Plant recommendations — each with name, why it was chosen, placement rationale, water zone
-- Design principles specific to the yard's context
-- Layout suggestions (where to group plants, water zones, focal points)
+- `message` — Claude's conversational response
+- `design` (once ready) — structured JSON plant layout (see below)
+- `svg` (once ready) — rendered SVG diagram as a string
+- `legend` — plant list with letter key, name, size, quantity
+- `summary` — short design description paragraph
+
+**Design JSON shape:**
+```json
+{
+  "yard": { "width_ft": 20, "length_ft": 30 },
+  "plants": [
+    {
+      "letter": "A",
+      "common_name": "Gro-Low Fragrant Sumac",
+      "scientific_name": "Rhus aromatica",
+      "plant_type": "shrub",
+      "color": "#8B4513",
+      "mature_spread_ft": 8,
+      "quantity": 3,
+      "positions": [{ "x": 4, "y": 6 }, { "x": 8, "y": 6 }, { "x": 12, "y": 6 }]
+    }
+  ]
+}
+```
 
 ---
 
@@ -25,10 +48,13 @@
 Calls phzmapi.org with the zip code. Returns USDA zone, temp range, and climate context. Keeps the zone lookup isolated and easy to swap.
 
 **`AIRecommendationService`**
-Owns the prompt. Takes zone data + yard context, calls the AI provider, returns structured JSON recommendations. This is where the prompt engineering lives.
+Owns the prompt. Takes zone data + yard context + message history, calls Claude, returns conversational response + structured design JSON. This is where the prompt engineering lives.
+
+**`SvgRenderService`**
+Takes the design JSON and renders it to an SVG string — grid, scaled plant shapes, letter labels, legend, design summary. Pure rendering, no AI.
 
 **`RecommendationsController`**
-Thin orchestration layer — calls the two services, merges results, renders the response. No business logic here.
+Thin orchestration layer — calls services in order, merges results, renders the response. No business logic here.
 
 ---
 
@@ -72,7 +98,7 @@ Claude is asked to reason about the yard before making recommendations — water
 ## Directory Structure
 
 ```
-api/                        # Rails API mode app
+api/
   app/
     controllers/
       api/
@@ -81,6 +107,7 @@ api/                        # Rails API mode app
     services/
       zone_lookup_service.rb
       ai_recommendation_service.rb
+      svg_render_service.rb
   config/
     routes.rb
 ```
@@ -89,4 +116,4 @@ api/                        # Rails API mode app
 
 ## Status
 
-> **Next step:** Confirm Rails is installed, scaffold `api/` with `rails new api --api`, set up versioned routes, stub the endpoint, then build services one at a time starting with `ZoneLookupService`.
+> **Next step:** Build `ZoneLookupService` → `AIRecommendationService` (first prompt draft) → `SvgRenderService`. Get a full request → SVG response working end to end before polishing any layer.
