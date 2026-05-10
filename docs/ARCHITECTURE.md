@@ -12,15 +12,29 @@ A web app that helps users design a xeriscaped yard. It should feel like a smart
 
 ---
 
+## MVP Output
+
+A top-down yard planting plan rendered as an SVG image, matching the style of professional xeriscape design handouts:
+
+- **Grid-based yard diagram** — yard boundary drawn to scale on a grid
+- **Plant shapes scaled to mature size** — each plant type gets a distinct shape (trees = cloud blobs, shrubs = diamonds/pentagons, perennials = starbursts, groundcovers = squares) and a unique color + letter label
+- **Landscape design principles applied** — odd-number groupings, layering by mature height, water zones, sun/shade placement, companion planting
+- **Plant legend** — letter key, common name, variety, mature dimensions, quantity per plant type
+- **Design summary** — short paragraph describing the design intent
+
+User can request tweaks conversationally ("more purple", "fewer shrubs", "move the oak") and the diagram re-renders from updated Claude output.
+
+---
+
 ## Core Features
 
-1. Enter a zip code → get USDA hardiness zone + region-appropriate plant recommendations
-2. Input yard dimensions to define the canvas
-3. Place existing elements (trees, beds, paths, hardscaping)
-4. Upload inspiration images or paste links to convey desired style
-5. AI recommends plants and layout using xeriscape best practices
-6. User can adjust recommendations freely
-7. Final output: 2D top-down plan + plant list
+1. Enter zip code → USDA hardiness zone lookup
+2. Provide yard dimensions and shape
+3. Describe existing elements (trees, beds, paths, hardscaping)
+4. Describe style preferences (sun, color palette, formality)
+5. AI applies xeriscape principles and produces a planting plan
+6. Output: SVG diagram + plant legend + design summary
+7. User tweaks via conversation → diagram updates
 
 ---
 
@@ -48,7 +62,7 @@ We build in layers, each one usable before the next begins.
 | Backend | Rails API mode | Stateless to start; DB added in Phase 4 |
 | MCP server | TypeScript (`@modelcontextprotocol/sdk`) | Domain knowledge layer — added in Phase 2 |
 | Frontend | Next.js (TypeScript/React) | Vercel free tier |
-| Canvas | react-konva or Fabric.js | 2D top-down yard designer |
+| SVG rendering | Ruby (`victor` gem or similar) | Server-side: Claude JSON → SVG diagram |
 | Database | PostgreSQL | Render or Railway — Phase 4 only |
 | AI | Claude API via Rails | Tool use, optionally backed by MCP server |
 | Zone lookup | phzmapi.org | Free REST API: zip → USDA zone |
@@ -135,6 +149,6 @@ For this project, MCP is included deliberately to demonstrate the pattern, not b
 
 ## Status
 
-> **Last completed:** Git repo initialized. `mcp-server/` scaffolded with `package.json` and `tsconfig.json` (parked for Phase 2). Architecture revised — Rails API is now Phase 1. `docs/` folder created.
+> **Last completed:** Rails API scaffolded in `api/`. Versioned routes stubbed. Architecture revised — output is an SVG planting plan (not a frontend canvas). Claude produces structured JSON; Rails renders it to SVG. Conversation is multi-turn, stateless (client sends full message history each turn).
 >
-> **Next step:** Scaffold the Rails API. Set up API mode, versioned routes, and a basic `/api/v1/recommendations` endpoint that takes zip + context and returns Claude's plant suggestions.
+> **Next step:** Build `ZoneLookupService` (phzmapi.org), then `AIRecommendationService` with the first prompt draft, then `SvgRenderService`. Get a full request → SVG response working end to end before polishing any layer.
