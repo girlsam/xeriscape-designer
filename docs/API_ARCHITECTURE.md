@@ -9,7 +9,7 @@ Multi-turn and stateless — the client sends the full message history each turn
 **Input:**
 - `messages` — full conversation history (role + content pairs)
 - `zip_code` — provided on first turn, used for zone lookup
-- `width_ft`, `length_ft` — yard dimensions
+- `dimensions` — object with `width`, `length`, and `unit` (e.g. `"ft"`)
 - `sun_exposure` — full sun / partial shade / full shade
 - `style` — naturalistic, formal, desert modern, etc.
 - `existing_elements` (optional) — array of trees, beds, paths, hardscaping
@@ -24,7 +24,7 @@ Multi-turn and stateless — the client sends the full message history each turn
 **Design JSON shape:**
 ```json
 {
-  "yard": { "width_ft": 20, "length_ft": 30 },
+  "yard": { "dimensions": { "width": 20, "length": 30, "unit": "ft" } },
   "plants": [
     {
       "letter": "A",
@@ -47,7 +47,7 @@ Multi-turn and stateless — the client sends the full message history each turn
 **`ZoneLookupService`**
 Calls phzmapi.org with the zip code. Returns USDA zone, temp range, and climate context. Keeps the zone lookup isolated and easy to swap.
 
-**`AIRecommendationService`**
+**`AiRecommendationService`**
 Owns the prompt. Takes zone data + yard context + message history, calls Claude, returns conversational response + structured design JSON. This is where the prompt engineering lives.
 
 **`SvgRenderService`**
@@ -116,4 +116,4 @@ api/
 
 ## Status
 
-> **Next step:** Build `ZoneLookupService` → `AIRecommendationService` (first prompt draft) → `SvgRenderService`. Get a full request → SVG response working end to end before polishing any layer.
+> **Next step:** Build `ZoneLookupService` → `AiRecommendationService` (first prompt draft) → `SvgRenderService`. Get a full request → SVG response working end to end before polishing any layer.
