@@ -1,5 +1,7 @@
 {
   "scripts": {
-    "server": "cd api && bin/rails s"
+    "api": "cd api && bin/rails s",
+    "web": "cd web && pnpm dev",
+    "dev": "concurrently \"pnpm api\" \"pnpm web\""
   }
 }

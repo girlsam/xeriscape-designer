@@ -1,26 +1,35 @@
 # Claude Code
 .claude/settings.local.json
 
-# Node
+# Dependencies
 node_modules/
-dist/
-*.js.map
 
 # Rails
-/api/log/*.log
-/api/tmp/
-/api/storage/
-/api/public/system/
-/api/.env
-/api/.env.*
+api/log/*
+!api/log/.keep
+api/tmp/*
+!api/tmp/.keep
+api/tmp/pids/*
+!api/tmp/pids/
+!api/tmp/pids/.keep
+api/storage/*
+!api/storage/.keep
+api/tmp/storage/*
+!api/tmp/storage/
+!api/tmp/storage/.keep
+api/.bundle
+api/config/*.key
 
-# Next.js
-/web/.next/
-/web/out/
-/web/.env
-/web/.env.*
+# Vite
+web/dist/
+web/dist-ssr/
+
+# Environment files
+api/.env
+api/.env.*
+web/.env.local
+web/.env.*.local
 
 # General
 .DS_Store
-*.env
-*.env.local
+*.log
