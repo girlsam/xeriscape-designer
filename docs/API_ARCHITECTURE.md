@@ -169,6 +169,6 @@ api/
 
 > **Services built:** `ZoneLookupService`, `AiRecommendationService`, type structs, system prompt, tests.
 >
-> **Not yet built:** `RecommendationsController`, routes, `SvgRenderService`, Next.js frontend.
+> **Not yet built:** `RecommendationsController`, routes, `SvgRenderService`, Vite/React frontend.
 >
-> **Next step:** Build controller + routes → scaffold Next.js frontend → validate spatial interpretation visually in the browser.
+> **Next step:** Build controller + routes → scaffold Vite/React frontend → validate spatial interpretation visually in the browser.
