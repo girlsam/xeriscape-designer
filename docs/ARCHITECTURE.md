@@ -28,13 +28,13 @@ User can request tweaks conversationally ("more purple", "fewer shrubs", "move t
 
 ## Core Features
 
-1. Enter zip code → USDA hardiness zone lookup
-2. Provide yard dimensions and shape
-3. Describe existing elements (trees, beds, paths, hardscaping)
-4. Describe style preferences (sun, color palette, formality)
-5. AI applies xeriscape principles and produces a planting plan
-6. Output: SVG diagram + plant legend + design summary
-7. User tweaks via conversation → diagram updates
+1. User describes their yard in natural language — dimensions, existing features, spatial relationships
+2. Claude interprets the spatial description, asks focused clarifying questions, confirms its layout reading before committing
+3. Claude applies xeriscape principles and produces a planting plan with absolute coordinates
+4. Output: SVG diagram + plant legend + design summary
+5. User tweaks via conversation ("more purple", "add a walkway") → diagram updates
+
+**No structured intake form.** Real yards are not clean rectangles with dropdown fields. A yard description like "37'-8" wide from stairs to ditch, planter 16'-8" x 5' in the right corner, tree 10'-6" from the planter" cannot be captured by a form. Claude is the spatial interpreter.
 
 ---
 
@@ -44,14 +44,15 @@ We build in layers, each one usable before the next begins.
 
 | Phase | What | Why |
 |---|---|---|
-| 1 | Rails API (stateless, no DB) | Get Claude talking first — zip + context in, plant recommendations out |
+| 1 | Rails API + Next.js frontend (parallel) | Validate the core loop end-to-end — conversational intake, SVG render, visual tweak cycle |
 | 2 | MCP server (TypeScript) | Add structured domain tools on top of a working API |
-| 3 | Next.js frontend | UI on top of a working API |
-| 4 | Database + persistence | PostgreSQL, designs/plants saved — added once the core loop is proven |
+| 3 | Database + persistence | PostgreSQL, designs/plants saved — added once the core loop is proven |
 
-**No database until Phase 4.** Build the useful thing first.
+**No database until Phase 3.** Build the useful thing first.
 
-**Why Rails before MCP:** The core value loop is "user provides context → Claude recommends plants." Getting that working with Claude's native knowledge first lets us validate the product before adding infrastructure. The MCP layer is additive, not foundational.
+**Why frontend now:** The spatial interpretation model — Claude converting natural language yard descriptions to coordinates — must be validated visually before investing further in the API layer. A working SVG in a browser is the only real proof that the prompt and coordinate model are correct.
+
+**Why Rails before MCP:** The core value loop is "user describes yard → Claude interprets space + recommends plants → SVG renders." Getting that working with Claude's native spatial reasoning first lets us validate the product before adding infrastructure. The MCP layer is additive, not foundational.
 
 ---
 
@@ -73,6 +74,21 @@ We build in layers, each one usable before the next begins.
 **Hosting:**
 - Frontend: Vercel (free)
 - Rails API: Render or Railway (cheap/free tier)
+
+---
+
+## Spatial Interpretation Model
+
+Claude serves two roles simultaneously: **spatial interpreter** and **plant recommender**.
+
+When a user describes their yard, Claude must:
+1. Parse natural language measurements including feet-inches format (`37'-8"` → `37.67 ft`)
+2. Resolve relational measurements (`"tree is 10'-6" from the planter"`) into absolute coordinates
+3. Establish a consistent coordinate system: `(0, 0)` at top-left corner, x increases right, y increases down, all values in decimal feet
+4. Confirm its spatial interpretation with the user before producing a design — e.g., "I'm placing the planter from x=21 to x=37.67 along the back wall — does that match your yard?"
+5. Distinguish existing features (user-provided ground truth) from designed plants (Claude's recommendations)
+
+**Why Claude, not an external tool:** Research into MCP servers and APIs (Mapbox, GIS Operations, ArcGIS, Grasshopper 3D) found that all existing spatial tools assume geographic coordinates — latitude/longitude anchored to the real world. None handle arbitrary local coordinate spaces like a yard. Academic work (HouseLLM, SpatialGrammar) exists but is not deployed as a production API. Claude's native spatial reasoning — guided by a tight prompt — is the correct approach.
 
 ---
 
@@ -149,6 +165,6 @@ For this project, MCP is included deliberately to demonstrate the pattern, not b
 
 ## Status
 
-> **Last completed:** Rails API scaffolded in `api/`. Versioned routes stubbed. Architecture revised — output is an SVG planting plan (not a frontend canvas). Claude produces structured JSON; Rails renders it to SVG. Conversation is multi-turn, stateless (client sends full message history each turn).
+> **Last completed:** Rails API layer complete — `ZoneLookupService`, `AiRecommendationService`, type structs (`Yard`, `Dimensions`, `YardFeature`), system prompt, and full test coverage. Architecture revised: no structured intake form; Claude is the spatial interpreter. Conversational intake, pure `messages` + `current_design` request contract.
 >
-> **Next step:** Build `ZoneLookupService` (phzmapi.org), then `AIRecommendationService` with the first prompt draft, then `SvgRenderService`. Get a full request → SVG response working end to end before polishing any layer.
+> **Next step:** Update `API_ARCHITECTURE.md` with new contract → build `RecommendationsController` + routes → scaffold Next.js frontend → get a full request → SVG response rendering in the browser. Spatial interpretation must be validated visually before further API investment.

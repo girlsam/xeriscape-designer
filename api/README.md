@@ -1,24 +1,39 @@
-# README
+# Xeriscape Designer — Rails API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Stateless Rails API. Orchestrates zone lookup, Claude conversation, and SVG rendering. No database until Phase 3.
 
-Things you may want to cover:
+## Requirements
 
-* Ruby version
+- Ruby 3.x (see `.ruby-version`)
+- Bundler
 
-* System dependencies
+## Setup
 
-* Configuration
+```bash
+bundle install
+cp .env.example .env  # add ANTHROPIC_API_KEY
+```
 
-* Database creation
+## Running
 
-* Database initialization
+```bash
+bin/rails server
+```
 
-* How to run the test suite
+## Tests
 
-* Services (job queues, cache servers, search engines, etc.)
+```bash
+bin/rails test
+```
 
-* Deployment instructions
+## Environment variables
 
-* ...
+| Variable | Required | Description |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Yes | Claude API key |
+
+## Endpoint
+
+`POST /api/v1/recommendations`
+
+See [`../docs/API_ARCHITECTURE.md`](../docs/API_ARCHITECTURE.md) for the full request/response contract.
