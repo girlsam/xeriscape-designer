@@ -7,14 +7,14 @@ class AiRecommendationService
   MAX_TOKENS = 8192
   SYSTEM_PROMPT = File.read(Rails.root.join("app/prompts/xeriscape_designer.txt")).freeze
 
-  def self.call(zone:, yard:, messages:)
-    new(zone: zone, yard: yard, messages: messages).call
+  def self.call(messages:, current_design: nil, zone: nil)
+    new(messages: messages, current_design: current_design, zone: zone).call
   end
 
-  def initialize(zone:, yard:, messages:)
-    @zone = zone
-    @yard = yard
+  def initialize(messages:, current_design: nil, zone: nil)
     @messages = messages
+    @current_design = current_design
+    @zone = zone
   end
 
   def call
@@ -40,24 +40,26 @@ class AiRecommendationService
     raise APIError, e.message
   end
 
-  # @TODO: validate sun_exposure and style are constrained enum values before interpolation
   def system_prompt_with_context
-    <<~PROMPT
-      #{SYSTEM_PROMPT}
+    parts = [ SYSTEM_PROMPT ]
 
-      Current yard context:
-      - USDA Hardiness Zone: #{@zone[:zone]} (#{@zone[:temperature_range]}°F)
-      - Dimensions: #{@yard.dimensions.width} x #{@yard.dimensions.length} #{@yard.dimensions.unit}
-      - Sun exposure: #{@yard.sun_exposure}
-      - Style: #{@yard.style}
-      - Existing yard features: #{format_yard_features}
-    PROMPT
-  end
+    if @zone
+      parts << <<~ZONE.strip
+        Zone context:
+        - USDA Hardiness Zone: #{@zone[:zone]} (#{@zone[:temperature_range]}°F)
+      ZONE
+    end
 
-  def format_yard_features
-    return "none" if @yard.yard_features.blank?
+    if @current_design
+      parts << <<~REFINEMENT.strip
+        Current design state — the user is refining this. Modify it based on their request and produce an updated <design> block. Do not start over.
+        <design>
+        #{@current_design.to_json}
+        </design>
+      REFINEMENT
+    end
 
-    @yard.yard_features.map { |e| "#{e.type} at (#{e.x}, #{e.y})" }.join(", ")
+    parts.join("\n\n")
   end
 
   def parse(text)
@@ -81,7 +83,7 @@ class AiRecommendationService
   end
 
   def validate_design!(design)
-    raise APIError, "Design is missing yard dimensions" unless design.dig(:yard, :dimensions)
+    raise APIError, "Design is missing yard boundary" unless design.dig(:yard, :boundary).is_a?(Array)
 
     plants = design[:plants]
     raise APIError, "Design is missing a plants array" unless plants.is_a?(Array) && plants.any?
