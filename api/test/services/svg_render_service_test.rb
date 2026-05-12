@@ -46,9 +46,16 @@ class SvgRenderServiceTest < ActiveSupport::TestCase
     assert_match(/height="\d+"/, svg)
   end
 
-  test "renders two boundary polygons — fill and outline" do
+  test "renders boundary polygons — clip path, fill, and outline" do
     svg = SvgRenderService.call(DESIGN)
-    assert_equal 2, svg.scan("<polygon").count
+    assert_equal 3, svg.scan("<polygon").count
+  end
+
+  test "renders grid lines at 2 ft intervals clipped to yard boundary" do
+    svg = SvgRenderService.call(DESIGN)
+    # 20x30 ft yard: x=0,2..20 → 11 vertical, y=0,2..30 → 16 horizontal = 27 lines
+    assert_equal 27, svg.scan("<line").count
+    assert_includes svg, "clip-path"
   end
 
   test "renders a circle per plant position plus one per circular feature" do

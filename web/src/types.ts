@@ -43,7 +43,9 @@ export interface LegendItem {
   common_name: string
   scientific_name?: string
   plant_type: string
+  color: string
   mature_spread_ft: number
+  mature_height_ft: number
   quantity: number
 }
 

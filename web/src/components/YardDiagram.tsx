@@ -1,5 +1,12 @@
 import type { Design, LegendItem } from '../types'
 
+function textColorForBg(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return (0.299 * r + 0.587 * g + 0.114 * b) > 128 ? '#1a1a1a' : '#ffffff'
+}
+
 interface Props {
   svg: string | null
   design: Design | null
@@ -32,6 +39,7 @@ export function YardDiagram({ svg, design, legend }: Props) {
                 <th style={styles.th}></th>
                 <th style={styles.th}>Plant</th>
                 <th style={styles.th}>Type</th>
+                <th style={styles.th}>Height</th>
                 <th style={styles.th}>Spread</th>
                 <th style={styles.th}>Qty</th>
               </tr>
@@ -40,15 +48,25 @@ export function YardDiagram({ svg, design, legend }: Props) {
               {legend.map(item => (
                 <tr key={item.letter}>
                   <td style={styles.td}>
-                    <span style={styles.letterBadge}>{item.letter}</span>
+                    <span style={{ ...styles.letterBadge, background: item.color, color: textColorForBg(item.color) }}>
+                      {item.letter}
+                    </span>
                   </td>
                   <td style={styles.td}>
-                    <div style={styles.plantName}>{item.common_name}</div>
-                    {item.scientific_name && (
-                      <div style={styles.scientificName}>{item.scientific_name}</div>
-                    )}
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent([item.common_name, item.scientific_name].filter(Boolean).join(' '))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={styles.plantLink}
+                    >
+                      <div style={styles.plantName}>{item.common_name}</div>
+                      {item.scientific_name && (
+                        <div style={styles.scientificName}>{item.scientific_name}</div>
+                      )}
+                    </a>
                   </td>
                   <td style={styles.td}>{item.plant_type}</td>
+                  <td style={styles.td}>{item.mature_height_ft} ft</td>
                   <td style={styles.td}>{item.mature_spread_ft} ft</td>
                   <td style={styles.td}>{item.quantity}</td>
                 </tr>
@@ -129,8 +147,15 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     fontSize: '12px',
   },
+  plantLink: {
+    textDecoration: 'none',
+    color: 'inherit',
+  },
   plantName: {
     fontWeight: 500,
+    textDecoration: 'underline',
+    textDecorationColor: 'rgba(0,0,0,0.2)',
+    textUnderlineOffset: '2px',
   },
   scientificName: {
     fontStyle: 'italic',

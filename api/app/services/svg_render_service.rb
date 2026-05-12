@@ -1,7 +1,8 @@
 class SvgRenderService
-  PADDING   = 40
-  MAX_WIDTH = 700
+  PADDING    = 40
+  MAX_WIDTH  = 700
   MAX_HEIGHT = 600
+  GRID_FT    = 2
 
   def self.call(design)
     new(design).call
@@ -26,8 +27,10 @@ class SvgRenderService
 
     @min_x  = xs.min
     @min_y  = ys.min
-    yard_w  = xs.max - @min_x
-    yard_h  = ys.max - @min_y
+    @max_x  = xs.max
+    @max_y  = ys.max
+    yard_w  = @max_x - @min_x
+    yard_h  = @max_y - @min_y
 
     @scale  = [ MAX_WIDTH.to_f / yard_w, MAX_HEIGHT.to_f / yard_h ].min
     @svg_w  = (yard_w * @scale + PADDING * 2).ceil
@@ -42,7 +45,13 @@ class SvgRenderService
   def build_svg
     <<~SVG.strip
       <svg xmlns="http://www.w3.org/2000/svg" width="#{@svg_w}" height="#{@svg_h}" viewBox="0 0 #{@svg_w} #{@svg_h}">
+        <defs>
+          <clipPath id="yard-clip">
+            <polygon points="#{boundary_points}"/>
+          </clipPath>
+        </defs>
         #{yard_fill}
+        #{render_grid}
         #{yard_outline}
         #{render_features}
         #{render_plants}
@@ -60,6 +69,24 @@ class SvgRenderService
 
   def yard_outline
     %(<polygon points="#{boundary_points}" fill="none" stroke="#4a5240" stroke-width="2"/>)
+  end
+
+  def render_grid
+    lines = []
+
+    x = (@min_x / GRID_FT).ceil * GRID_FT
+    while x <= @max_x
+      lines << %(<line x1="#{sx(x)}" y1="#{sy(@min_y)}" x2="#{sx(x)}" y2="#{sy(@max_y)}" stroke="#c4d4c4" stroke-width="0.5"/>)
+      x += GRID_FT
+    end
+
+    y = (@min_y / GRID_FT).ceil * GRID_FT
+    while y <= @max_y
+      lines << %(<line x1="#{sx(@min_x)}" y1="#{sy(y)}" x2="#{sx(@max_x)}" y2="#{sy(y)}" stroke="#c4d4c4" stroke-width="0.5"/>)
+      y += GRID_FT
+    end
+
+    %(<g clip-path="url(#yard-clip)">#{lines.join}</g>)
   end
 
   def render_features
