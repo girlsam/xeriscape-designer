@@ -8,7 +8,7 @@
 
 A web app that helps users design a xeriscaped yard. It should feel like a smart design assistant — not just a drag-and-drop tool, but something that knows what it's doing.
 
-**Portfolio goals:** Public GitHub repo showcasing AI integration (Claude API tool use, MCP) and full-stack engineering (Rails API + Next.js frontend).
+**Portfolio goals:** Public GitHub repo showcasing AI integration (Claude API tool use, MCP) and full-stack engineering (Rails API + Vite/React frontend).
 
 ---
 
@@ -44,7 +44,7 @@ We build in layers, each one usable before the next begins.
 
 | Phase | What | Why |
 |---|---|---|
-| 1 | Rails API + Next.js frontend (parallel) | Validate the core loop end-to-end — conversational intake, SVG render, visual tweak cycle |
+| 1 | Rails API + Vite/React frontend (parallel) | Validate the core loop end-to-end — conversational intake, SVG render, visual tweak cycle |
 | 2 | MCP server (TypeScript) | Add structured domain tools on top of a working API |
 | 3 | Database + persistence | PostgreSQL, designs/plants saved — added once the core loop is proven |
 
@@ -62,7 +62,7 @@ We build in layers, each one usable before the next begins.
 |---|---|---|
 | Backend | Rails API mode | Stateless to start; DB added in Phase 4 |
 | MCP server | TypeScript (`@modelcontextprotocol/sdk`) | Domain knowledge layer — added in Phase 2 |
-| Frontend | Next.js (TypeScript/React) | Vercel free tier |
+| Frontend | Vite + React (TypeScript) | Vercel free tier |
 | SVG rendering | Ruby (`victor` gem or similar) | Server-side: Claude JSON → SVG diagram |
 | Database | PostgreSQL | Render or Railway — Phase 4 only |
 | AI | Claude API via Rails | Tool use, optionally backed by MCP server |
@@ -111,9 +111,9 @@ For this project, MCP is included deliberately to demonstrate the pattern, not b
 
 ```
 ┌─────────────────────┐         ┌──────────────────────┐
-│   Next.js (Vercel)  │ ──────▶ │   Rails API (Render) │
-│   TypeScript/React  │         │   (stateless to start)│
-│   react-konva       │         │   Claude API calls    │
+│   Vite/React        │ ──────▶ │   Rails API (Render) │
+│   TypeScript        │         │   (stateless to start)│
+│   SVG rendering     │         │   Claude API calls    │
 └─────────────────────┘         └──────────┬───────────┘
                                            │ tool use
                                 ┌──────────▼───────────┐
@@ -167,4 +167,4 @@ For this project, MCP is included deliberately to demonstrate the pattern, not b
 
 > **Last completed:** Rails API layer complete — `ZoneLookupService`, `AiRecommendationService`, type structs (`Yard`, `Dimensions`, `YardFeature`), system prompt, and full test coverage. Architecture revised: no structured intake form; Claude is the spatial interpreter. Conversational intake, pure `messages` + `current_design` request contract.
 >
-> **Next step:** Update `API_ARCHITECTURE.md` with new contract → build `RecommendationsController` + routes → scaffold Next.js frontend → get a full request → SVG response rendering in the browser. Spatial interpretation must be validated visually before further API investment.
+> **Next step:** Update `API_ARCHITECTURE.md` with new contract → build `RecommendationsController` + routes → scaffold Vite/React frontend → get a full request → SVG response rendering in the browser. Spatial interpretation must be validated visually before further API investment.

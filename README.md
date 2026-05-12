@@ -16,7 +16,7 @@ No form. Real yards are irregular; natural language is the only honest input mod
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js (TypeScript/React) |
+| Frontend | Vite + React (TypeScript) |
 | Backend | Rails API mode (Ruby) |
 | AI | Claude API — spatial interpretation + plant recommendations |
 | SVG rendering | Rails (`SvgRenderService`) — design JSON → SVG string |
@@ -43,6 +43,6 @@ The MCP server (Phase 2) grounds Claude's recommendations in structured domain d
 
 | Phase | What |
 |---|---|
-| 1 | Rails API + Next.js frontend — validate the full loop end-to-end in the browser |
+| 1 | Rails API + Vite/React frontend — validate the full loop end-to-end in the browser |
 | 2 | MCP server — structured domain tools layered on top |
 | 3 | PostgreSQL — saved designs and persistence |
