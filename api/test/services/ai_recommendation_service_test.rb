@@ -18,6 +18,7 @@ class AiRecommendationServiceTest < ActiveSupport::TestCase
         plant_type: "grass",
         color: "#90EE90",
         mature_spread_ft: 1,
+        mature_height_ft: 1.5,
         quantity: 1,
         positions: [ { x: 2, y: 4 } ]
       }
@@ -63,7 +64,7 @@ class AiRecommendationServiceTest < ActiveSupport::TestCase
 
     # Verify the request body includes the current design in the system prompt
     stub = stub_request(:post, "https://api.anthropic.com/v1/messages")
-      .with { |req| JSON.parse(req.body)["system"].include?("Current design state") }
+      .with { |req| JSON.parse(req.body)["system"].include?("The user is refining this design") }
       .to_return(
         status: 200,
         body: {

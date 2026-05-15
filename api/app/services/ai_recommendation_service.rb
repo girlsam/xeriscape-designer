@@ -41,25 +41,26 @@ class AiRecommendationService
   end
 
   def system_prompt_with_context
-    parts = [ SYSTEM_PROMPT ]
+    prompt = if @current_design
+      SYSTEM_PROMPT.sub("{{CURRENT_DESIGN}}", refinement_content)
+    else
+      SYSTEM_PROMPT.gsub(/<current_design>\s*\{\{CURRENT_DESIGN\}\}\s*<\/current_design>\n?/, "")
+    end
 
     if @zone
-      parts << <<~ZONE.strip
-        Zone context:
-        - USDA Hardiness Zone: #{@zone[:zone]} (#{@zone[:temperature_range]}°F)
-      ZONE
+      prompt += "\n\nZone context:\n- USDA Hardiness Zone: #{@zone[:zone]} (#{@zone[:temperature_range]}°F)"
     end
 
-    if @current_design
-      parts << <<~REFINEMENT.strip
-        Current design state — the user is refining this. Modify it based on their request and produce an updated <design> block. Do not start over.
-        <design>
-        #{@current_design.to_json}
-        </design>
-      REFINEMENT
-    end
+    prompt
+  end
 
-    parts.join("\n\n")
+  def refinement_content
+    <<~REFINEMENT.strip
+      The user is refining this design. Modify it based on their request and produce an updated <design> block. Do not start over.
+      <design>
+      #{@current_design.to_json}
+      </design>
+    REFINEMENT
   end
 
   def parse(text)
@@ -69,7 +70,7 @@ class AiRecommendationService
     { message: message, design: design }
   end
 
-  REQUIRED_PLANT_KEYS = %i[letter common_name plant_type color mature_spread_ft quantity positions].freeze
+  REQUIRED_PLANT_KEYS = %i[letter common_name plant_type color mature_spread_ft mature_height_ft quantity positions].freeze
 
   def extract_design(text)
     match = text.match(/<design>\s*(.*?)\s*<\/design>/m)

@@ -44,7 +44,7 @@ module Api
 
       def build_legend(design)
         design[:plants].map do |plant|
-          plant.slice(:letter, :common_name, :scientific_name, :plant_type, :mature_spread_ft, :quantity)
+          plant.slice(:letter, :common_name, :scientific_name, :plant_type, :color, :mature_spread_ft, :mature_height_ft, :quantity)
         end
       end
     end
