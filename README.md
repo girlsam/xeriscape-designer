@@ -4,6 +4,10 @@ An AI-assisted web app for designing drought-tolerant yards. Describe your yard 
 
 ![Xeriscape Designer UI](docs/view_ui.png)
 
+## Why
+
+I love gardening and visualizing what gardens can be — learning which plants belong in a place, imagining a space in different lights and seasons. But overgrown and untended yards are intimidating, and knowing where to start with native plants isn't always obvious. That's why I built this: so you can describe a neglected corner of your yard and get back an actual design, native plants placed, with a diagram to work from.
+
 ## What it does
 
 1. Describe your yard conversationally — dimensions, existing trees, planters, paths, and any spatial relationships ("tree is 10'-6" from the planter")
