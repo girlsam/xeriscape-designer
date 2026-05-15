@@ -3,6 +3,7 @@ import { Chat } from './components/Chat'
 import { YardDiagram } from './components/YardDiagram'
 import { getRecommendation } from './lib/api'
 import type { Design, LegendItem, Message } from './types'
+import styles from './App.module.css'
 
 export default function App() {
   const [messages, setMessages] = useState<Message[]>([])
@@ -36,44 +37,14 @@ export default function App() {
   }
 
   return (
-    <div style={styles.layout}>
-      <div style={styles.chatPane}>
+    <div className={styles.layout}>
+      <div className={styles.chatPane}>
         <Chat messages={messages} isLoading={isLoading} onSend={handleSend} />
-        {error && <div style={styles.error}>{error}</div>}
+        {error && <div className={styles.error}>{error}</div>}
       </div>
-      <div style={styles.diagramPane}>
+      <div className={styles.diagramPane}>
         <YardDiagram svg={svg} design={currentDesign} legend={legend} />
       </div>
     </div>
   )
-}
-
-const styles: Record<string, React.CSSProperties> = {
-  layout: {
-    display: 'grid',
-    gridTemplateColumns: '380px 1fr',
-    height: '100vh',
-    overflow: 'hidden',
-  },
-  chatPane: {
-    position: 'relative',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  diagramPane: {
-    overflow: 'hidden',
-    background: '#f9f7f4',
-  },
-  error: {
-    position: 'absolute',
-    bottom: '80px',
-    left: '12px',
-    right: '12px',
-    background: '#fee2e2',
-    color: '#991b1b',
-    padding: '10px 14px',
-    borderRadius: '8px',
-    fontSize: '13px',
-  },
 }

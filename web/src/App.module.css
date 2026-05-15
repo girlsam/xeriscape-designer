@@ -1,0 +1,30 @@
+.layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.chatPane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.diagramPane {
+  overflow: hidden;
+  background: #f9f7f4;
+}
+
+.error {
+  position: absolute;
+  bottom: 80px;
+  left: 12px;
+  right: 12px;
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
