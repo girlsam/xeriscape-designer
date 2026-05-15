@@ -3,7 +3,7 @@ require "anthropic"
 class AiRecommendationService
   class APIError < StandardError; end
 
-  MODEL = "claude-sonnet-4-6"
+  MODEL = ENV.fetch("CLAUDE_MODEL", "claude-sonnet-4-6")
   MAX_TOKENS = 8192
   SYSTEM_PROMPT = File.read(Rails.root.join("app/prompts/xeriscape_designer.txt")).freeze
 
