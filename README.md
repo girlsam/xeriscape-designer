@@ -2,6 +2,8 @@
 
 An AI-assisted web app for designing drought-tolerant yards. Describe your yard in natural language — Claude interprets the space, recommends xeriscape-appropriate plants, and renders a scaled SVG planting plan.
 
+![Xeriscape Designer UI](docs/view_ui.png)
+
 ## What it does
 
 1. Describe your yard conversationally — dimensions, existing trees, planters, paths, and any spatial relationships ("tree is 10'-6" from the planter")
@@ -38,6 +40,39 @@ Research into existing MCP servers and GIS APIs (Mapbox, ArcGIS, Grasshopper 3D)
 ### On the MCP server
 
 The MCP server (Phase 2) grounds Claude's recommendations in structured domain data rather than relying solely on training knowledge. This pattern is most valuable when you own the data — a plant retailer constraining Claude to their actual inventory, for example. For this project, Claude's native plant knowledge is sufficient at MVP scale. The MCP layer is additive, not foundational.
+
+## Running locally
+
+**Prerequisites:** Ruby 3.3.1, Node.js, pnpm
+
+**1. API**
+
+```bash
+cd api
+bundle install
+cp .env.example .env        # then add your ANTHROPIC_API_KEY
+rails db:create db:migrate
+rails s                     # http://localhost:3000
+```
+
+**2. Frontend** (separate terminal)
+
+```bash
+cd web
+pnpm install
+echo "VITE_API_URL=http://localhost:3000" > .env.local
+pnpm dev                    # http://localhost:5173
+```
+
+The app is at `http://localhost:5173`. The frontend talks to the Rails API on port 3000.
+
+**Environment variables**
+
+| File | Variable | Required |
+|---|---|---|
+| `api/.env` | `ANTHROPIC_API_KEY` | Yes |
+| `api/.env` | `CLAUDE_MODEL` | No — defaults to `claude-sonnet-4-6` |
+| `web/.env.local` | `VITE_API_URL` | No — defaults to `http://localhost:3000` |
 
 ## Build order
 
