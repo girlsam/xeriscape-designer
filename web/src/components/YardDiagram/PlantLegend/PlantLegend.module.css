@@ -3,11 +3,12 @@
 }
 
 .legendTitle {
-  font-size: 13px;
+  font-family: var(--font-display);
+  font-style: italic;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #6b6b6b;
+  font-size: 16px;
+  color: var(--color-text-muted);
+  margin-top: 0;
   margin-bottom: 12px;
 }
 
@@ -20,15 +21,15 @@
 .th {
   text-align: left;
   padding: 6px 10px;
-  border-bottom: 2px solid #e2ddd8;
-  color: #6b6b6b;
+  border-bottom: 2px solid var(--color-border);
+  color: var(--color-text-muted);
   font-weight: 500;
   white-space: nowrap;
 }
 
 .td {
   padding: 8px 10px;
-  border-bottom: 1px solid #f0ece8;
+  border-bottom: 1px solid var(--color-surface-muted);
   vertical-align: top;
 }
 
@@ -58,8 +59,7 @@
 
 .scientificName {
   display: block;
-  font-style: italic;
-  color: #999;
+  color: var(--color-text-faint);
   font-size: 12px;
   margin-top: 2px;
 }
