@@ -4,10 +4,31 @@
   padding: 0;
 }
 
+:root {
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  --color-bg: #f9f7f4;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f0ece8;
+
+  --color-primary: #2d6a4f;
+  --color-accent: #c4622d;
+
+  --color-border: #e2ddd8;
+
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b6b6b;
+  --color-text-faint: #737373;
+
+  --color-error-bg: #fee2e2;
+  --color-error-text: #991b1b;
+}
+
 html, body, #root {
   height: 100%;
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #f9f7f4;
-  color: #1a1a1a;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
   font-size: 15px;
 }

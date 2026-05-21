@@ -14,7 +14,7 @@
 
 .diagramPane {
   overflow: hidden;
-  background: #f9f7f4;
+  background: var(--color-bg);
 }
 
 .error {
@@ -22,8 +22,8 @@
   bottom: 80px;
   left: 12px;
   right: 12px;
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
   padding: 10px 14px;
   border-radius: 8px;
   font-size: 13px;
