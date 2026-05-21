@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Message } from '../types'
+import type { Message } from '../../types'
 import styles from './Chat.module.css'
 
 interface Props {
@@ -26,9 +26,9 @@ export function Chat({ messages, isLoading, onSend }: Props) {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <span className={styles.title}>Xeriscape Designer</span>
-      </div>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Xeriscape Designer</h1>
+      </header>
 
       <div className={styles.messages}>
         {messages.length === 0 && (
@@ -38,14 +38,14 @@ export function Chat({ messages, isLoading, onSend }: Props) {
           </p>
         )}
         {messages.map((msg, i) => (
-          <div key={i} className={msg.role === 'user' ? styles.userBubble : styles.assistantBubble}>
+          <p key={i} className={msg.role === 'user' ? styles.userBubble : styles.assistantBubble}>
             {msg.content}
-          </div>
+          </p>
         ))}
         {isLoading && (
-          <div className={styles.assistantBubble}>
+          <p className={styles.assistantBubble}>
             <span className={styles.typing}>···</span>
-          </div>
+          </p>
         )}
         <div ref={bottomRef} />
       </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Chat } from './components/Chat'
-import { YardDiagram } from './components/YardDiagram'
+import { Chat } from './components/Chat/Chat'
+import { YardDiagram } from './components/YardDiagram/YardDiagram'
 import { getRecommendation } from './lib/api'
 import type { Design, LegendItem, Message } from './types'
 import styles from './App.module.css'
@@ -38,13 +38,13 @@ export default function App() {
 
   return (
     <div className={styles.layout}>
-      <div className={styles.chatPane}>
+      <section className={styles.chatPane}>
         <Chat messages={messages} isLoading={isLoading} onSend={handleSend} />
-        {error && <div className={styles.error}>{error}</div>}
-      </div>
-      <div className={styles.diagramPane}>
+        {error && <p className={styles.error}>{error}</p>}
+      </section>
+      <main className={styles.diagramPane}>
         <YardDiagram svg={svg} design={currentDesign} legend={legend} />
-      </div>
+      </main>
     </div>
   )
 }
