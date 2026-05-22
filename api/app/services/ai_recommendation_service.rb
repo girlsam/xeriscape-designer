@@ -29,8 +29,8 @@ class AiRecommendationService
     response = client.messages.create(
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: system_prompt_with_context,
-      messages: @messages
+      system: build_system_blocks,
+      messages: messages_with_cache_control
     )
 
     raise APIError, "Unexpected response format" unless response.content.first.is_a?(Anthropic::Models::TextBlock)
@@ -40,27 +40,46 @@ class AiRecommendationService
     raise APIError, e.message
   end
 
-  def system_prompt_with_context
-    prompt = if @current_design
-      SYSTEM_PROMPT.sub("{{CURRENT_DESIGN}}", refinement_content)
-    else
-      SYSTEM_PROMPT.gsub(/<current_design>\s*\{\{CURRENT_DESIGN\}\}\s*<\/current_design>\n?/, "")
-    end
+  def messages_with_cache_control
+    return @messages if @messages.length < 2
 
-    if @zone
-      prompt += "\n\nZone context:\n- USDA Hardiness Zone: #{@zone[:zone]} (#{@zone[:temperature_range]}°F)"
-    end
-
-    prompt
+    messages = @messages.dup
+    prior_idx = messages.length - 2
+    msg = messages[prior_idx]
+    messages[prior_idx] = msg.merge(
+      content: [ { type: "text", text: msg[:content], cache_control: { type: "ephemeral" } } ]
+    )
+    messages
   end
 
-  def refinement_content
-    <<~REFINEMENT.strip
-      The user is refining this design. Modify it based on their request and produce an updated <design> block. Do not start over.
-      <design>
-      #{@current_design.to_json}
-      </design>
-    REFINEMENT
+  def build_system_blocks
+    blocks = [
+      { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }
+    ]
+
+    dynamic = dynamic_context
+    blocks << { type: "text", text: dynamic } if dynamic
+
+    blocks
+  end
+
+  def dynamic_context
+    parts = []
+
+    if @current_design
+      parts << <<~DESIGN.strip
+        <current_design>
+        The user is refining this design. Modify it based on their request and produce an updated <design> block. Do not start over.
+        <design>
+        #{@current_design.to_json}
+        </design>
+        </current_design>
+      DESIGN
+    end
+
+    parts << "Zone context:\n- USDA Hardiness Zone: #{@zone[:zone]} (#{@zone[:temperature_range]}°F)" if @zone
+
+    parts.join("\n\n") unless parts.empty?
   end
 
   def parse(text)
