@@ -44,7 +44,7 @@ export function Chat({ messages, isLoading, onSend }: Props) {
         ))}
         {isLoading && (
           <p className={styles.assistantBubble}>
-            <span className={styles.typing}>···</span>
+            <span className={styles.typing}><span>·</span><span>·</span><span>·</span></span>
           </p>
         )}
         <div ref={bottomRef} />
