@@ -63,7 +63,7 @@ class Api::V1::RecommendationsControllerTest < ActionDispatch::IntegrationTest
 
   # --- zip code / zone handling ---
 
-  test "calls zone lookup and injects zone into system prompt when zip_code param present" do
+  test "looks up the hardiness zone when a zip code is provided" do
     stub_zone("80203")
     stub_claude("Got it.")
 
@@ -75,7 +75,7 @@ class Api::V1::RecommendationsControllerTest < ActionDispatch::IntegrationTest
     assert_requested :get, "https://phzmapi.org/80203.json"
   end
 
-  test "extracts zip_code from current_design when not in params" do
+  test "uses the zip code from the existing design when none is provided separately" do
     stub_zone("80203")
     stub_claude("Got it.")
     current_design = DESIGN.merge(zip_code: "80203")
@@ -88,7 +88,7 @@ class Api::V1::RecommendationsControllerTest < ActionDispatch::IntegrationTest
     assert_requested :get, "https://phzmapi.org/80203.json"
   end
 
-  test "skips zone lookup when no zip_code is present" do
+  test "does not make a zone request when no zip code is known" do
     stub_claude("What's your zip code?")
 
     post api_v1_recommendations_path,

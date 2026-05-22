@@ -46,7 +46,7 @@ class SvgRenderServiceTest < ActiveSupport::TestCase
     assert_match(/height="\d+"/, svg)
   end
 
-  test "renders boundary polygons — clip path, fill, and outline" do
+  test "renders the yard boundary" do
     svg = SvgRenderService.call(DESIGN)
     assert_equal 3, svg.scan("<polygon").count
   end
@@ -58,7 +58,7 @@ class SvgRenderServiceTest < ActiveSupport::TestCase
     assert_includes svg, "clip-path"
   end
 
-  test "renders a circle per plant position plus one per circular feature" do
+  test "renders each plant position and circular existing feature" do
     svg = SvgRenderService.call(DESIGN)
     # 2 positions for A + 1 for B + 1 tree = 4
     assert_equal 4, svg.scan("<circle").count
@@ -81,10 +81,24 @@ class SvgRenderServiceTest < ActiveSupport::TestCase
     assert_includes svg, "Oak"
   end
 
-  test "renders planter feature as rect with label" do
+  test "renders planter features with a label" do
     svg = SvgRenderService.call(DESIGN)
     assert_includes svg, "<rect"
     assert_includes svg, "Planter"
+  end
+
+  test "renders path and fence features as a generic shape" do
+    design = {
+      yard: DESIGN[:yard].merge(existing_features: [
+        { type: "path",  label: "Front path", x: 5, y: 0, width: 3, height: 10 },
+        { type: "fence", label: "Side fence", x: 0, y: 0, width: 1, height: 30 }
+      ]),
+      plants: []
+    }
+    svg = SvgRenderService.call(design)
+    assert_includes svg, "<rect"
+    assert_includes svg, "Front path"
+    assert_includes svg, "Side fence"
   end
 
   test "works with no existing features" do
