@@ -23,12 +23,30 @@
 
   --color-error-bg: #fee2e2;
   --color-error-text: #991b1b;
+
+  --col-chat: 38rem;
+
+  --text-xs: 1.2rem;
+  --text-sm: 1.3rem;
+  --text-base: 1.4rem;
+  --text-body: 1.5rem;
+  --text-lg: 1.6rem;
+  --text-xl: 2.2rem;
+
+  --radius: 0.8rem;
 }
 
 html, body, #root {
   height: 100%;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body, #root {
   font-family: var(--font-body);
   background: var(--color-bg);
   color: var(--color-text);
-  font-size: 15px;
+  font-size: var(--text-body);
 }

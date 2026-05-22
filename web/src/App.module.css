@@ -1,6 +1,6 @@
 .layout {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: var(--col-chat) 1fr;
   height: 100vh;
   overflow: hidden;
 }
@@ -19,12 +19,12 @@
 
 .error {
   position: absolute;
-  bottom: 80px;
-  left: 12px;
-  right: 12px;
+  bottom: 8rem;
+  left: 1.2rem;
+  right: 1.2rem;
   background: var(--color-error-bg);
   color: var(--color-error-text);
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 1rem 1.4rem;
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
 }
