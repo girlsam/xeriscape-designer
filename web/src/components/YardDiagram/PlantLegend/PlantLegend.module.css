@@ -20,7 +20,7 @@
 
 .th {
   text-align: left;
-  padding: 6px 10px;
+  padding: 0.6rem var(--pad-sm);
   border-bottom: 2px solid var(--color-border);
   color: var(--color-text-muted);
   font-weight: 500;
@@ -28,7 +28,7 @@
 }
 
 .td {
-  padding: 8px 10px;
+  padding: var(--pad-xs) var(--pad-sm);
   border-bottom: 1px solid var(--color-surface-muted);
   vertical-align: top;
 }

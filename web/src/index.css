@@ -13,7 +13,7 @@
   --color-surface-muted: #f0ece8;
 
   --color-primary: #2d6a4f;
-  --color-accent: #c4622d;
+  --color-accent: #4a9a74;
 
   --color-border: #e2ddd8;
 
@@ -23,6 +23,24 @@
 
   --color-error-bg: #fee2e2;
   --color-error-text: #991b1b;
+
+  --col-chat: 38rem;
+
+  --text-xs: 1.2rem;
+  --text-sm: 1.3rem;
+  --text-base: 1.4rem;
+  --text-body: 1.5rem;
+  --text-lg: 1.6rem;
+  --text-xl: 2.2rem;
+
+  --radius: 0.8rem;
+
+  --pad-xs: 0.8rem;
+  --pad-sm: 1rem;
+  --pad-md: 1.6rem;
+  --pad-lg: 2rem;
+  --pad-xl: 2.4rem;
+  --pad-2xl: 4rem;
 }
 
 html, body, #root {

@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+## Communication
+
+Be direct. No pleasantries, no preamble. If something is wrong, say so immediately and say why. If there's a better approach, name it. Challenge assumptions when they're flawed.
+
 ## Think before coding
 
 **Don't assume. Don't hide confusion. Surface tradeoffs.**
@@ -15,7 +19,7 @@ Before implementing:
 **Minimum code that solves the problem. Nothing speculative.**
 
 - No features beyond what was asked.
-- No abstractions for single-use code.
+- No abstractions for single-use code. Example: If you need to call an API endpoint, write a function. Don't create an ApiClient base class unless there are already multiple clients.
 - No "flexibility" or "configurability" that wasn't requested.
 - No error handling for impossible scenarios.
 - If you write 200 lines and it could be 50, rewrite it.
@@ -53,3 +57,11 @@ For multi-step tasks, state a brief plan:
 2. [Step] → verify: [check]
 3. [Step] → verify: [check]
 ```
+
+## Principles
+
+Follow these in all code you write or modify.
+
+### Tests describe behavior, not implementation
+- Name tests as specs: `"logs user out after 2 minutes idle"` not `"returns null user after timeout"`
+- Assert on visible outcomes, not internal method calls or private state.
