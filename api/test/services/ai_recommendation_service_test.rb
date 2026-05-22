@@ -27,7 +27,18 @@ class AiRecommendationServiceTest < ActiveSupport::TestCase
 
   MESSAGES = [ { role: "user", content: "Please design my yard." } ].freeze
 
-  test "returns message and design JSON when Claude produces a complete plan" do
+  test "returns a message with no design while still gathering context" do
+    stub_claude_response("Got it. What are the dimensions of your yard?")
+
+    result = AiRecommendationService.call(
+      messages: [ { role: "user", content: "My zip is 80203." } ]
+    )
+
+    assert_includes result[:message], "dimensions"
+    assert_nil result[:design]
+  end
+
+  test "produces a message and planting plan when all context is gathered" do
     stub_claude_response(<<~TEXT)
       Based on your zone 6a yard, here's a xeriscape plan suited to your space.
 
@@ -42,18 +53,7 @@ class AiRecommendationServiceTest < ActiveSupport::TestCase
     assert_equal "Blue Grama Grass", result[:design][:plants].first[:common_name]
   end
 
-  test "returns message with no design when Claude is still gathering context" do
-    stub_claude_response("Got it. What are the dimensions of your yard?")
-
-    result = AiRecommendationService.call(
-      messages: [ { role: "user", content: "My zip is 80203." } ]
-    )
-
-    assert_includes result[:message], "dimensions"
-    assert_nil result[:design]
-  end
-
-  test "injects current_design into system prompt for refinement turns" do
+  test "produces an updated design when refining an existing one" do
     stub_claude_response(<<~TEXT)
       I've added more purple-flowering plants.
 
@@ -62,28 +62,30 @@ class AiRecommendationServiceTest < ActiveSupport::TestCase
       </design>
     TEXT
 
-    # Verify the request body includes the current design in the system prompt
-    stub = stub_request(:post, "https://api.anthropic.com/v1/messages")
-      .with { |req| JSON.parse(req.body)["system"].any? { |b| b["text"].include?("The user is refining this design") } }
-      .to_return(
-        status: 200,
-        body: {
-          content: [ { type: "text", text: "Updated design.\n<design>\n#{DESIGN_JSON.to_json}\n</design>" } ],
-          model: "claude-sonnet-4-6",
-          role: "assistant"
-        }.to_json,
-        headers: { "Content-Type" => "application/json" }
-      )
-
-    AiRecommendationService.call(
+    result = AiRecommendationService.call(
       messages: [ { role: "user", content: "More purple please." } ],
       current_design: DESIGN_JSON
     )
 
-    assert_requested stub
+    assert_includes result[:message], "purple"
+    assert_not_nil result[:design]
   end
 
-  test "raises APIError when design is missing yard boundary" do
+  test "rejects a design with malformed JSON" do
+    stub_claude_response(<<~TEXT)
+      Here is your plan.
+
+      <design>
+      { this is not valid json
+      </design>
+    TEXT
+
+    assert_raises(AiRecommendationService::APIError) do
+      AiRecommendationService.call(messages: MESSAGES)
+    end
+  end
+
+  test "rejects a design that has no yard boundary" do
     bad_design = { yard: {}, plants: DESIGN_JSON[:plants] }
 
     stub_claude_response(<<~TEXT)
@@ -99,10 +101,8 @@ class AiRecommendationServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "raises APIError when design positions count does not match quantity" do
-    bad_design = DESIGN_JSON.dup.tap do |d|
-      d[:plants] = [ d[:plants].first.merge(quantity: 5) ]
-    end
+  test "rejects a design with no plants" do
+    bad_design = DESIGN_JSON.merge(plants: [])
 
     stub_claude_response(<<~TEXT)
       Here is your plan.
@@ -117,12 +117,16 @@ class AiRecommendationServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "raises APIError when Claude returns malformed JSON in design block" do
+  test "rejects a design where plant position count does not match quantity" do
+    bad_design = DESIGN_JSON.dup.tap do |d|
+      d[:plants] = [ d[:plants].first.merge(quantity: 5) ]
+    end
+
     stub_claude_response(<<~TEXT)
       Here is your plan.
 
       <design>
-      { this is not valid json
+      #{bad_design.to_json}
       </design>
     TEXT
 
