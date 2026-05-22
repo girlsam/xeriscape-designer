@@ -64,7 +64,7 @@ class AiRecommendationServiceTest < ActiveSupport::TestCase
 
     # Verify the request body includes the current design in the system prompt
     stub = stub_request(:post, "https://api.anthropic.com/v1/messages")
-      .with { |req| JSON.parse(req.body)["system"].include?("The user is refining this design") }
+      .with { |req| JSON.parse(req.body)["system"].any? { |b| b["text"].include?("The user is refining this design") } }
       .to_return(
         status: 200,
         body: {
